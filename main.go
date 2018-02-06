@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -23,6 +24,7 @@ type Address struct {
 }
 
 var people []Person
+var nextPid int
 
 // GetPeople to get all people data
 func GetPeople(w http.ResponseWriter, r *http.Request) {
@@ -40,11 +42,23 @@ func GetPerson(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// CreatePerson to create one person data by post
+func CreatePerson(w http.ResponseWriter, r *http.Request) {
+	var person Person
+	_ = json.NewDecoder(r.Body).Decode(&person)
+	person.ID = strconv.Itoa(nextPid)
+	nextPid++
+	people = append(people, person)
+	json.NewEncoder(w).Encode(people)
+}
+
 func main() {
 	router := mux.NewRouter()
 	people = append(people, Person{ID: "1", Firstname: "John", Lastname: "Doe", Address: &Address{City: "City X", State: "State X"}})
 	people = append(people, Person{ID: "2", Firstname: "Koko", Lastname: "Doe", Address: &Address{City: "City Z", State: "State Y"}})
+	nextPid = 3
 	router.HandleFunc("/people", GetPeople).Methods("GET")
+	router.HandleFunc("/people", CreatePerson).Methods("POST")
 	router.HandleFunc("/people/{id}", GetPerson).Methods("GET")
 
 	log.Println("Server now listening on port", 8000)
