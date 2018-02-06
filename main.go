@@ -35,5 +35,6 @@ func main() {
 	people = append(people, Person{ID: "2", Firstname: "Koko", Lastname: "Doe", Address: &Address{City: "City Z", State: "State Y"}})
 	router.HandleFunc("/people", GetPeople).Methods("GET")
 
+	log.Println("Server now listening on port", 8000)
 	log.Fatal(http.ListenAndServe(":8000", router))
 }
