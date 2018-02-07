@@ -52,6 +52,18 @@ func CreatePerson(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(people)
 }
 
+// DeletePerson to delete one person data
+func DeletePerson(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	for index, item := range people {
+		if item.ID == params["id"] {
+			people = append(people[:index], people[index+1:]...)
+			break
+		}
+	}
+	json.NewEncoder(w).Encode(people)
+}
+
 func main() {
 	router := mux.NewRouter()
 	people = append(people, Person{ID: "1", Firstname: "John", Lastname: "Doe", Address: &Address{City: "City X", State: "State X"}})
@@ -60,6 +72,7 @@ func main() {
 	router.HandleFunc("/people", GetPeople).Methods("GET")
 	router.HandleFunc("/people", CreatePerson).Methods("POST")
 	router.HandleFunc("/people/{id}", GetPerson).Methods("GET")
+	router.HandleFunc("/people/{id}", DeletePerson).Methods("DELETE")
 
 	log.Println("Server now listening on port", 8000)
 	log.Fatal(http.ListenAndServe(":8000", router))
